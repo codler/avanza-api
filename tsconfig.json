@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "module": "umd",
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "target": "es2019"
+  }
+}
