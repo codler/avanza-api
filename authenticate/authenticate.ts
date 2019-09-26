@@ -3,7 +3,7 @@ import {
   getAuthenticationSessionsUsercredentials,
   getAuthenticationSessionsTotp,
   AuthenticationSessionsTotp
-} from "./requests";
+} from "../requests";
 
 export interface Credentials {
   username?: string;
