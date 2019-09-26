@@ -6,7 +6,8 @@ enum AccountType {
   "AktieFondkonto",
   "Investeringssparkonto",
   "KreditkontoISK",
-  "SparkontoPlus"
+  "SparkontoPlus",
+  "Tjanstepension"
 }
 
 type SparkontoPlusType = "Collector" | "Klarna" | "Santander" | string;
@@ -46,7 +47,7 @@ interface ResponseOverview {
 }
 
 class Avanza {
-  static BASE_URL = "https://www.avanza.se/";
+  static BASE_URL = "https://www.avanza.se";
 
   public get isAuthenticated(): boolean {
     return (
@@ -87,7 +88,7 @@ class Avanza {
   }
 
   getAccountsSummary(): Promise<ResponseOverview> {
-    return this.fetch("_mobile/account/overview");
+    return this.fetch("/_mobile/account/overview");
   }
 }
 

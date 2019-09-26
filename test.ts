@@ -5,7 +5,8 @@ init();
 async function init() {
   try {
     avanza.session = require("./session.json");
-  } catch {
+  } catch {}
+  if (!avanza.isAuthenticated) {
     await avanza.authenticate(require("./credential.json"));
   }
 

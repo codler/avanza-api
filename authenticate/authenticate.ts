@@ -1,5 +1,8 @@
 import totp from "./totp";
 import {
+  getAuthenticationSessionsBankId,
+  getAuthenticationSessionsBankIdCollect,
+  getAuthenticationSessionsBankIdCollectCustomer,
   getAuthenticationSessionsUsercredentials,
   getAuthenticationSessionsTotp,
   AuthenticationSessionsTotp
@@ -37,13 +40,40 @@ async function authenticateCredential(
   return session;
 }
 
+async function authenticateBankId(options) {
+  const attempt = await getAuthenticationSessionsBankId(options.personnummer);
+  const success = await getAuthenticationSessionsBankIdCollect(
+    attempt.transactionId,
+    new Date(attempt.expires)
+  );
+
+  if (options.username) {
+    const user = success.logins.find(
+      login => login.username === options.username
+    );
+    if (user) {
+      return await getAuthenticationSessionsBankIdCollectCustomer(
+        user.loginPath
+      );
+    } else {
+      throw "Username not found in login";
+    }
+  } else if (success.logins.length) {
+    return await getAuthenticationSessionsBankIdCollectCustomer(
+      success.logins[0].loginPath
+    );
+  } else {
+    throw "No logins found";
+  }
+}
+
 async function authenticate(
   options: Credentials
 ): Promise<AuthenticationSessionsTotp> {
   const useBankId = !!options.personnummer;
 
   if (useBankId) {
-    throw "Implement bank id";
+    return await authenticateBankId(options);
   }
   return await authenticateCredential(options);
 }
