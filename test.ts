@@ -12,7 +12,7 @@ async function init() {
 
   if (avanza.isAuthenticated) {
     console.log("Session", avanza.session);
-    const accounts = await avanza.getAccounts();
+    const accounts = await avanza.getPositions();
     console.log(accounts);
   } else {
     console.log("Failed to authenticate");
