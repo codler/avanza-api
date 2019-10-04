@@ -196,7 +196,10 @@ class Avanza {
         }
         throw { code: 401 };
       } else {
-        return response.json();
+        return response.json().catch(e => {
+          console.log(response);
+          throw e;
+        });
       }
     } catch (e) {
       if (e) {
