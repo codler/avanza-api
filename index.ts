@@ -224,7 +224,6 @@ class Avanza {
 
   async getPositions(): Promise<Position[]> {
     const responsePositions: ResponsePositions = await this.getPositionsByInstrumentType();
-    console.log("TCL: responsePositions", responsePositions);
 
     const positions: Position[] = [];
 
