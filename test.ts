@@ -1,4 +1,4 @@
-import Avanza from "./index";
+import Avanza, { InstrumentType } from "./index";
 const avanza = new Avanza();
 
 init();
@@ -12,8 +12,18 @@ async function init() {
 
   if (avanza.isAuthenticated) {
     console.log("Session", avanza.session);
+
     const accounts = await avanza.getAccounts();
-    console.log(accounts);
+
+    const positions = await avanza.getPositions();
+
+    const orderbookIds = positions
+      .filter(position => position.instrumentType !== InstrumentType.UNKNOWN)
+      .map(position => position.orderbookId);
+    console.log("TCL: orderbookIds", orderbookIds);
+
+    const ava = await avanza.getOrderbooks(orderbookIds);
+    console.log(ava);
   } else {
     console.log("Failed to authenticate");
   }

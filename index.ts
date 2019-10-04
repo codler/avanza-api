@@ -4,18 +4,18 @@ import authenticate, { Credentials } from "./authenticate/authenticate";
 import { AuthenticationSessionsTotp } from "./requests";
 
 enum AccountType {
-  "AktieFondkonto",
-  "Investeringssparkonto",
-  "KreditkontoISK",
-  "SparkontoPlus",
-  "Tjanstepension"
+  "AktieFondkonto" = "AktieFondkonto",
+  "Investeringssparkonto" = "Investeringssparkonto",
+  "KreditkontoISK" = "KreditkontoISK",
+  "SparkontoPlus" = "SparkontoPlus",
+  "Tjanstepension" = "Tjanstepension"
 }
 
-enum InstrumentType {
-  "STOCK",
-  "FUND",
-  "CERTIFICATE",
-  "UNKNOWN"
+export enum InstrumentType {
+  "STOCK" = "STOCK",
+  "FUND" = "FUND",
+  "CERTIFICATE" = "CERTIFICATE",
+  "UNKNOWN" = "UNKNOWN"
 }
 
 type SparkontoPlusType = "Collector" | "Klarna" | "Santander" | string;
@@ -252,6 +252,14 @@ class Avanza {
 
   getDealsAndOrders(): Promise<ResponseDealsAndOrders> {
     return this.fetch("/_mobile/account/dealsandorders");
+  }
+
+  getOrderbooks(orderbookIds: string[]) {
+    if (!orderbookIds || orderbookIds.length === 0) {
+      throw "Missing orderbookIds";
+    }
+    const path = orderbookIds.join(",");
+    return this.fetch("/_mobile/market/orderbooklist/" + path);
   }
 }
 
