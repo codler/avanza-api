@@ -1,4 +1,5 @@
 import "fetch-register";
+import { exit } from "process";
 import authenticate, { Credentials } from "./authenticate/authenticate";
 import { AuthenticationSessionsTotp } from "./requests";
 
@@ -96,6 +97,48 @@ interface ResponsePositions {
   totalProfit: number;
 }
 
+interface TransactionFees {
+  commission: number;
+  marketFees: number;
+  totalFees: number;
+  totalSum: number;
+  totalSumWithoutFees: number;
+}
+
+interface Orderbook {
+  currency: string;
+  flagCode: string;
+  name: string;
+  id: string;
+  type: InstrumentType; // InstrumentType??
+  marketPlace: string; // eg Stockholmsbörsen
+}
+interface Order {
+  transactionFees: TransactionFees;
+  orderbook: Orderbook;
+  account: { type: string; name: string; id: string };
+  status: string; // eg Marknaden
+  statusDescription: string;
+  rawStatus: string; // eg ACTIVE
+  validUntil: string;
+  openVolume: unknown;
+  marketTransaction: boolean;
+  type: string; // eg BUY
+  orderId: string;
+  deletable: boolean;
+  price: number;
+  modifyAllowed: boolean;
+  orderDateTime: string;
+  volume: number;
+  sum: number;
+}
+
+interface ResponseDealsAndOrders {
+  orders: Order[];
+  deals: unknown[];
+  accounts: { type: string; name: string; id: string }[];
+  reservedAmount: number;
+}
 class Avanza {
   static BASE_URL = "https://www.avanza.se";
 
@@ -107,9 +150,24 @@ class Avanza {
     );
   }
 
+  credentials: Credentials;
   session: AuthenticationSessionsTotp;
 
+  expireSession() {
+    this.session = undefined;
+  }
+
+  retryAuthenticate(): Promise<boolean> {
+    console.log("retryAuthenticate");
+    this.expireSession();
+    return this.authenticate(this.credentials);
+  }
+
   async authenticate(options: Credentials): Promise<boolean> {
+    if (!options) {
+      throw "Missing credentials";
+    }
+    this.credentials = options;
     this.session = await authenticate(options);
     return this.isAuthenticated;
   }
@@ -128,8 +186,32 @@ class Avanza {
       }
     });
 
-    const response = await fetch(requestPath, requestOptions);
-    return response.json();
+    try {
+      const response = await fetch(requestPath, requestOptions);
+
+      if (response.status === 401) {
+        await this.retryAuthenticate();
+        if (this.isAuthenticated) {
+          return this.fetch(path, options);
+        }
+        throw { code: 401 };
+      } else {
+        return response.json();
+      }
+    } catch (e) {
+      if (e) {
+        if (e.code === "ENOTFOUND") {
+          console.log("Fetch: ENOTFOUND");
+          throw e;
+        }
+        if (e.code === 401) {
+          console.log("Fetch: 401");
+          throw e;
+        }
+      }
+      console.log(e);
+      exit(1);
+    }
   }
 
   async getAccounts(): Promise<Account[]> {
@@ -139,6 +221,7 @@ class Avanza {
 
   async getPositions(): Promise<Position[]> {
     const responsePositions: ResponsePositions = await this.getPositionsByInstrumentType();
+    console.log("TCL: responsePositions", responsePositions);
 
     const positions: Position[] = [];
 
@@ -158,6 +241,15 @@ class Avanza {
 
   getAccountsSummary(): Promise<ResponseOverview> {
     return this.fetch("/_mobile/account/overview");
+  }
+
+  async getOrders(): Promise<Order[]> {
+    const dealsandorders: ResponseDealsAndOrders = await this.getDealsAndOrders();
+    return dealsandorders.orders;
+  }
+
+  getDealsAndOrders(): Promise<ResponseDealsAndOrders> {
+    return this.fetch("/_mobile/account/dealsandorders");
   }
 }
 

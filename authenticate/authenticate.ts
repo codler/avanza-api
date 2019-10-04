@@ -42,6 +42,9 @@ async function authenticateCredential(
 
 async function authenticateBankId(options) {
   const attempt = await getAuthenticationSessionsBankId(options.personnummer);
+
+  console.log("Open your mobile Bank ID");
+
   const success = await getAuthenticationSessionsBankIdCollect(
     attempt.transactionId,
     new Date(attempt.expires)
