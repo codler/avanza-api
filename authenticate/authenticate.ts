@@ -1,4 +1,5 @@
-import totp from "./totp";
+import OTP from "otp-client";
+
 import {
   getAuthenticationSessionsBankId,
   getAuthenticationSessionsBankIdCollect,
@@ -32,7 +33,9 @@ async function authenticateCredential(
     options.username,
     options.password
   );
-  const totpCode = options.totpSecret ? totp(options.totpSecret) : options.totp;
+  const totpCode = options.totpSecret
+    ? new OTP(options.totpSecret).getToken()
+    : options.totp;
   const session = await getAuthenticationSessionsTotp(
     totpCode,
     credential.twoFactorLogin.transactionId

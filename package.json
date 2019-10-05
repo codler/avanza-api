@@ -17,7 +17,8 @@
   },
   "license": "ISC",
   "dependencies": {
-    "fetch-register": "^1.3.0"
+    "fetch-register": "^1.3.0",
+    "otp-client": "^1.0.2"
   },
   "devDependencies": {
     "@types/node": "^12.7.7"
