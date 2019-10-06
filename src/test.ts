@@ -4,11 +4,11 @@ const avanza = new Avanza();
 init();
 async function init() {
   try {
-    avanza.session = require("./session.json");
+    avanza.session = require("../session.json");
   } catch {}
   if (!avanza.isAuthenticated) {
     try {
-      await avanza.authenticate(require("./credential.json"));
+      await avanza.authenticate(require("../credential.json"));
     } catch (e) {
       console.log("Test: Catch:", e);
     }

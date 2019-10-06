@@ -1,0 +1,132 @@
+import "fetch-register";
+import { exit } from "process";
+import authenticate, { Credentials } from "./authenticate";
+import { AuthenticationSessionsTotp } from "./requests";
+import * as I from "./interfaces";
+
+class Avanza {
+  static BASE_URL = "https://www.avanza.se";
+
+  public get isAuthenticated(): boolean {
+    return (
+      this.session &&
+      !!this.session.securityToken &&
+      !!this.session.authenticationSession
+    );
+  }
+
+  credentials: Credentials;
+  session: AuthenticationSessionsTotp;
+
+  expireSession() {
+    this.session = undefined;
+  }
+
+  retryAuthenticate(): Promise<boolean> {
+    console.log("retryAuthenticate");
+    this.expireSession();
+    return this.authenticate(this.credentials);
+  }
+
+  async authenticate(options: Credentials): Promise<boolean> {
+    if (!options) {
+      throw "Missing credentials";
+    }
+    this.credentials = options;
+    this.session = await authenticate(options);
+    return this.isAuthenticated;
+  }
+
+  async fetch(path: string, options: RequestInit = {}): Promise<any> {
+    if (!this.isAuthenticated) {
+      throw "Call authenticate before";
+    }
+
+    const requestPath = Avanza.BASE_URL + path;
+    const requestOptions: RequestInit = Object.assign({}, options, {
+      headers: {
+        ...options.headers,
+        "X-AuthenticationSession": this.session.authenticationSession,
+        "X-SecurityToken": this.session.securityToken
+      }
+    });
+
+    try {
+      const response = await fetch(requestPath, requestOptions);
+
+      if (response.status === 401) {
+        await this.retryAuthenticate();
+        if (this.isAuthenticated) {
+          return this.fetch(path, options);
+        }
+        throw { code: 401 };
+      } else {
+        return response.json().catch(e => {
+          console.log(response);
+          throw e;
+        });
+      }
+    } catch (e) {
+      if (e) {
+        if (e.code === "ENOTFOUND") {
+          console.log("Fetch: ENOTFOUND");
+          throw e;
+        }
+        if (e.code === 401) {
+          console.log("Fetch: 401");
+          throw e;
+        }
+      }
+      console.log(e);
+      exit(1);
+    }
+  }
+
+  async getAccounts(): Promise<I.Account[]> {
+    const overview: I.ResponseOverview = await this.getAccountsSummary();
+    return overview.accounts;
+  }
+
+  async getPositions(): Promise<I.Position[]> {
+    const responsePositions: I.ResponsePositions = await this.getPositionsByInstrumentType();
+
+    const positions: I.Position[] = [];
+
+    responsePositions.instrumentPositions.forEach(instrumentPosition =>
+      instrumentPosition.positions.forEach(position => {
+        position.instrumentType = instrumentPosition.instrumentType;
+        positions.push(position);
+      })
+    );
+
+    return positions;
+  }
+
+  getPositionsByInstrumentType(): Promise<I.ResponsePositions> {
+    return this.fetch("/_mobile/account/positions");
+  }
+
+  getAccountsSummary(): Promise<I.ResponseOverview> {
+    return this.fetch("/_mobile/account/overview");
+  }
+
+  async getOrders(): Promise<I.Order[]> {
+    const dealsandorders: I.ResponseDealsAndOrders = await this.getDealsAndOrders();
+    return dealsandorders.orders;
+  }
+
+  getDealsAndOrders(): Promise<I.ResponseDealsAndOrders> {
+    return this.fetch("/_mobile/account/dealsandorders");
+  }
+
+  getOrderbooks(orderbookIds: string[]) {
+    if (!orderbookIds || orderbookIds.length === 0) {
+      throw "Missing orderbookIds";
+    }
+    const path = orderbookIds.join(",");
+    return this.fetch("/_mobile/market/orderbooklist/" + path);
+  }
+}
+
+export * from "./interfaces";
+export default Avanza;
