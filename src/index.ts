@@ -3,7 +3,6 @@ import authenticate, { Credentials } from "./authenticate";
 import { AuthenticationSessionsTotp } from "./requests";
 import * as I from "./interfaces";
 import { InstrumentType } from "./interfaces";
-import { process } from "./utils";
 
 interface PreFetch {
   (path: string, options: RequestInit): { [0]: string; [1]: RequestInit };
@@ -103,7 +102,8 @@ class Avanza {
         }
       }
       console.log(e);
-      process.exit(1);
+      const processModuleName = "process";
+      require(processModuleName).exit(1);
     }
   }
 
