@@ -134,3 +134,51 @@ export interface ResponseDealsAndOrders {
   accounts: { type: string; name: string; id: string }[];
   reservedAmount: number;
 }
+
+export interface ResponseOrderbook {
+  currency: string;
+  highestPrice?: number; // STOCK
+  lowestPrice?: number; // STOCK
+  lastPrice?: number; // STOCK
+  change?: number; // STOCK
+  changePercent?: number; // STOCK
+  updated?: string; // STOCK
+  totalVolumeTraded?: number; // STOCK
+  flagCode?: string; // STOCK
+  priceThreeMonthsAgo?: number; // STOCK
+  managementFee?: number; // FUND
+  prospectus?: string; // FUND
+  rating?: number; // FUND
+  changePercentOneYear?: number; // FUND
+  minMonthlySavingAmount?: number; // FUND
+  risk?: number; // FUND
+  lastUpdated?: string; // FUND
+  changePercentPeriod?: number; // FUND
+  changePercentThreeMonths?: number; // FUND
+  instrumentType: InstrumentType;
+  tradable: boolean;
+  name: string;
+  id: string;
+}
+
+export interface Search {
+  instrumentType: InstrumentType; // Internal
+  currency: string;
+  lastPrice: number;
+  changePercent: number;
+  tradable: boolean;
+  tickerSymbol: string;
+  flagCode: string;
+  name: string;
+  id: string;
+}
+
+export interface ResponseSearchHit {
+  instrumentType: InstrumentType;
+  numberOfHits: number;
+  topHits: Search[];
+}
+export interface ResponseSearch {
+  totalNumberOfHits: number;
+  hits: ResponseSearchHit[];
+}

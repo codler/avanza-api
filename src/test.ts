@@ -1,7 +1,18 @@
 import Avanza, { InstrumentType } from "./index";
-const avanza = new Avanza();
+const avanza = new Avanza({
+  preFetch: function(...rest) {
+    console.log("Request", rest);
+    return rest;
+  }
+});
 
-init();
+initPublic();
+async function initPublic() {
+  const search = await avanza.searchList("abb");
+  console.log(search);
+}
+
+// init();
 async function init() {
   try {
     avanza.session = require("../session.json");

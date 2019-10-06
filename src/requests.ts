@@ -1,5 +1,4 @@
-const BASE_URL = "https://www.avanza.se";
-
+import Avanza from "./index";
 interface ResponseAuthenticationSessionsBankId {
   transactionId: string;
   expires: string;
@@ -9,7 +8,7 @@ interface ResponseAuthenticationSessionsBankId {
 async function getAuthenticationSessionsBankId(
   personnummer
 ): Promise<ResponseAuthenticationSessionsBankId> {
-  const url = `${BASE_URL}/_api/authentication/sessions/bankid`;
+  const url = `${Avanza.BASE_URL}/_api/authentication/sessions/bankid`;
   const response = await fetch(url, {
     method: "POST",
     body: JSON.stringify({
@@ -54,7 +53,7 @@ async function getAuthenticationSessionsBankIdCollect(
   transactionId,
   expires: Date
 ): Promise<ResponseAuthenticationSessionsBankIdCollect> {
-  const url = `${BASE_URL}/_api/authentication/sessions/bankid/collect`;
+  const url = `${Avanza.BASE_URL}/_api/authentication/sessions/bankid/collect`;
   const response = await fetch(url, {
     headers: {
       "Content-Type": "application/json",
@@ -94,7 +93,7 @@ async function getAuthenticationSessionsBankIdCollect(
 async function getAuthenticationSessionsBankIdCollectCustomer(
   loginPath: string
 ): Promise<AuthenticationSessionsTotp> {
-  const url = BASE_URL + loginPath;
+  const url = Avanza.BASE_URL + loginPath;
   const response = await fetch(url);
 
   const securityToken = response.headers.get("x-securitytoken");
@@ -129,7 +128,7 @@ async function getAuthenticationSessionsUsercredentials(
   username,
   password
 ): Promise<ResponseAuthenticationSessionsUsercredentials> {
-  const url = `${BASE_URL}/_api/authentication/sessions/usercredentials`;
+  const url = `${Avanza.BASE_URL}/_api/authentication/sessions/usercredentials`;
   const response = await fetch(url, {
     method: "POST",
     body: JSON.stringify({
@@ -169,7 +168,7 @@ async function getAuthenticationSessionsTotp(
   totpCode: string,
   twoFactorLoginTransactionId: string
 ): Promise<AuthenticationSessionsTotp> {
-  const url = `${BASE_URL}/_api/authentication/sessions/totp`;
+  const url = `${Avanza.BASE_URL}/_api/authentication/sessions/totp`;
   const response = await fetch(url, {
     method: "POST",
     body: JSON.stringify({
