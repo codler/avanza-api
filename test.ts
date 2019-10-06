@@ -7,7 +7,11 @@ async function init() {
     avanza.session = require("./session.json");
   } catch {}
   if (!avanza.isAuthenticated) {
-    await avanza.authenticate(require("./credential.json"));
+    try {
+      await avanza.authenticate(require("./credential.json"));
+    } catch (e) {
+      console.log("Test: Catch:", e);
+    }
   }
 
   if (avanza.isAuthenticated) {
@@ -25,6 +29,6 @@ async function init() {
     const ava = await avanza.getOrderbooks(orderbookIds);
     console.log(ava);
   } else {
-    console.log("Failed to authenticate");
+    console.log("Test: Failed to authenticate");
   }
 }

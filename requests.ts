@@ -143,7 +143,10 @@ async function getAuthenticationSessionsUsercredentials(
 
   const responseJson: ResponseAuthenticationSessionsUsercredentials = await response.json();
   if (typeof responseJson.twoFactorLogin === "undefined") {
-    console.error("Failed to authenticate", responseJson);
+    console.error(
+      "Request usercredentials: Failed to authenticate",
+      responseJson
+    );
     throw "Failed to authenticate";
   }
   if (responseJson.twoFactorLogin.method !== "TOTP") {
@@ -178,6 +181,10 @@ async function getAuthenticationSessionsTotp(
       Cookie: `AZAMFATRANSACTION=${twoFactorLoginTransactionId}`
     }
   });
+
+  if (response.status === 401) {
+    throw new Error("Unauthorized Totp");
+  }
 
   const securityToken = response.headers.get("x-securitytoken");
   if (!securityToken) {
