@@ -1,5 +1,4 @@
 import "fetch-register";
-import { exit } from "process";
 import authenticate, { Credentials } from "./authenticate";
 import { AuthenticationSessionsTotp } from "./requests";
 import * as I from "./interfaces";
@@ -103,7 +102,7 @@ class Avanza {
         }
       }
       console.log(e);
-      exit(1);
+      require("process").exit(1);
     }
   }
 
