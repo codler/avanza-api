@@ -128,6 +128,18 @@ export interface Order {
   sum: number;
 }
 
+export enum OrderType {
+  BUY,
+  SELL
+}
+
+export interface ResponsePlaceOrder {
+  messages: object;
+  requestId: string;
+  status: string;
+  orderId: string;
+}
+
 export interface ResponseDealsAndOrders {
   orders: Order[];
   deals: unknown[];

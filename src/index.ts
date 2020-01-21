@@ -144,6 +144,30 @@ class Avanza {
     return this.authFetch("/_mobile/account/dealsandorders");
   }
 
+  placeOrder(
+    accountId: string,
+    orderbookId: string,
+    orderType: I.OrderType,
+    price: number,
+    validUntil: string, // YYYY-MM-DD
+    volume: number
+  ): Promise<I.ResponsePlaceOrder> {
+    return this.authFetch("/_api/order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        accountId,
+        orderbookId,
+        orderType,
+        price,
+        validUntil,
+        volume
+      })
+    });
+  }
+
   getOrderbooks(orderbookIds: string[]): Promise<I.ResponseOrderbook[]> {
     if (!orderbookIds || orderbookIds.length === 0) {
       throw "Missing orderbookIds";
